@@ -7,10 +7,10 @@ class Deck():
     def __init__(self, no_of_players):
         self.deck = self._make_deck()
         self.no_of_players = no_of_players
-        self._shuffle()
+        self._shuffle_deck()
 
     def give_initial_defuse(self, player):
-        player.draw_card(CardsEnum.defuse)
+        player.draw(CardsEnum.defuse)
 
     def _get(self):
         temp = self.deck[0]
@@ -63,64 +63,28 @@ class Deck():
             string += i
         return string + "]"
 
-    def _nope(self):
-        for i in self.players:
-            if not i == self.players[self.next_player_index]:
-                for j in i.hand:
-                    if j == CardsEnum.nope:
-                        nope = int(input("Nope?\n"))
-                        if nope == 1:
-                            i.use_card(CardsEnum.nope)
-                            return True
+    def favor(self, player, target_player, card):
+        player.draw(target_player.give_card())
 
-    def _attack(self):
-        print("player used attack")
-        self.players[self.next_player_index].use_card(CardsEnum.attack)
-        if self._nope():
-            return
-        self.is_attacking = True
-        self.turn_order = TurnOrderEnum.choose_next_player
-
-    def _skip(self):
-        print("player used skip")
-        self.players[self.next_player_index].use_card(CardsEnum.skip)
-        if self._nope():
-            return
-        self.turn_order = TurnOrderEnum.choose_next_player
-
-    def _favor(self):
-        print("player used favor")
-        self.players[self.next_player_index].use_card(CardsEnum.favor)
-        if self._nope():
-            return
-        target_player = int(input("Choose a target player:\n"))
-        self.players[self.next_player_index].draw(
-            self.players[target_player].give_card())
-
-    def _shuffle(self):
-        print("player used shuffle")
-        self.players[self.next_player_index].use_card(CardsEnum.shuffle)
-        if self._nope():
-            return
+    def shuffle(self):
         self._shuffle_deck()
 
-    def _see_the_future(self):
-        print("player used see the future")
-        self.players[self.next_player_index].use_card(CardsEnum.see_the_future)
-        if self._nope():
-            return
-        print(
-            f"The next three cards are {self.deck[0]}, {self.deck[1]} and {self.deck[2]}")
+    def see_the_future(self, player):
+        print(f"The next three cards are {self.deck[0]}, {self.deck[1]} and {self.deck[2]}")
 
-    def _steal(self, card_no):
-        print("player used steal")
-        self.players[self.next_player_index].use_card(CardsEnum(card_no))
-        self.players[self.next_player_index].use_card(CardsEnum(card_no))
-        if self._nope():
-            return
-        target_player = int(input("Choose a target player:\n"))
-        self.players[self.next_player_index].draw(
-            self.players[target_player].give_random())
+    def steal(self, card_no, player, target_player):
+        card_no = card_no/2;
+        player.use_card(CardsEnum(card_no))
+        player.use_card(CardsEnum(card_no))
+        player.draw(target_player.give_random())
+        
+    def steal_specific(self, card_played, card_to_steal, player, target_player):
+        card_played = card_played/3;
+        player.use_card(CardsEnum(card_played))
+        player.use_card(CardsEnum(card_played))
+        player.use_card(CardsEnum(card_played))
+        if target_player.give(card_to_steal) is not None:
+            player.draw(card_to_steal)
 
     def _place_exploding_kitten(self, position):
         temp = [None for _ in range(len(self.deck) + 1)]

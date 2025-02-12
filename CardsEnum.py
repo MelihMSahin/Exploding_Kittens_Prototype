@@ -3,8 +3,8 @@ from enum import Enum
 
 class CardsEnum(Enum):
     defuse = 0
-    nope = 1
-    exploding_kitten = 2
+    nope = 2
+    exploding_kitten = -1
     attack = 3
     skip = 4
     favor = 5
@@ -32,6 +32,3 @@ class CardsEnum(Enum):
     def __str__(self):
         return self.name
 
-
-if __name__ == "__main__":
-    print(CardsEnum.value.__get__())
